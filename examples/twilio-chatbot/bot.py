@@ -77,7 +77,7 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, call_sid: str, t
 
     stt = OpenAISTTService(
         api_key=os.getenv("OPENAI_API_KEY"),
-        model="whisper-1",
+        model="gpt-4o-transcribe",
         language=None,  # 自动检测中英文
         audio_passthrough=True
     )
