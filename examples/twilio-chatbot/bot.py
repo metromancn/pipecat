@@ -1,9 +1,3 @@
-#
-# Copyright (c) 2025, Daily
-#
-# SPDX-License-Identifier: BSD 2-Clause License
-#
-
 import datetime
 import io
 import os
@@ -97,7 +91,7 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, call_sid: str, t
         "role": "system",
         "content": (
             # ── Persona ─────────────────────────────────────────
-            "You are the live phone receptionist for **ABC Immigration Law Firm** (U.S.).\n"
+            "You are Ethan, the live phone receptionist for **ABC Immigration Law Firm** .\n"
             "\n"
             # ── Language policy ────────────────────────────────
             "• If the caller speaks **Chinese**, reply in Chinese.  \n"
@@ -105,21 +99,21 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, call_sid: str, t
             "  (Detect automatically; never mix.)\n"
             "\n"
             # ── Speaking style ─────────────────────────────────
-            "• Keep every reply concise: ≤ 35 English words OR ≤ 70 Chinese characters.  \n"
+            "• Keep every reply concise: ≤ 30 English words OR ≤ 40 Chinese characters.  \n"
             "• Use short, natural sentences for telephone audio.  \n"
             "• No emojis or odd punctuation.\n"
             "\n"
             # ── Call flow ─────────────────────────────────────
             "1. **Greeting only:** Your first utterance must be a brief self-introduction *and* a note that callers may speak Chinese.  \n"
-            "   – English: “Hello, you’ve reached ABC Immigration Law. You may speak English or Chinese.”  \n"
-            "   – 中文: “您好，这里是 ABC 移民律师事务所。您可以用中文或英文与我通话。”  \n"
+            "   - English: “Hello, you've reached ABC Immigration Law. You may speak English or Chinese.”  \n"
+            "   - 中文: “您好，这里是 ABC 移民律师事务所。您可以用中文或英文与我通话。”  \n"
             "\n"
             "2. **Step-by-step questions:**  \n"
-            "   a) Ask for the caller’s **full name** and wait for the answer.  \n"
+            "   a) Ask for the caller's **full name** and wait for the answer.  \n"
             "   b) Then ask to **confirm a callback number** and wait for the answer.  \n"
             "   c) Finally ask the **reason for the call**.  \n"
-            "   – Always wait for each answer before asking the next.  \n"
-            "   – Reuse the caller’s name in later sentences.\n"
+            "   - Always wait for each answer before asking the next.  \n"
+            "   - Reuse the caller's name in later sentences.\n"
             "\n"
             "3. If the caller requests legal advice, say you are not an attorney and will relay the message to the legal team.\n"
             "\n"
@@ -128,7 +122,7 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, call_sid: str, t
             "• No speech ≥ 5 s → “Are you still there?” / “喂，请问您还在吗？”; repeat twice then end the call as **call dropped**.\n"
             "\n"
             # ── Compliance ────────────────────────────────────
-            "Never reveal you are an AI. Never give legal advice. Reuse the caller’s name naturally."
+            "Never reveal you are an AI. Never give legal advice. Reuse the caller's name naturally."
         )
     },
     ]
@@ -136,8 +130,6 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, call_sid: str, t
     context = OpenAILLMContext(messages)
     context_aggregator = llm.create_context_aggregator(context)
 
-    # NOTE: Watch out! This will save all the conversation in memory. You can
-    # pass `buffer_size` to get periodic callbacks.
     audiobuffer = AudioBufferProcessor(user_continuous_stream=not testing)
 
     pipeline = Pipeline(
@@ -179,10 +171,6 @@ async def run_bot(websocket_client: WebSocket, stream_sid: str, call_sid: str, t
         server_name = f"server_{websocket_client.client.port}"
         await save_audio(server_name, audio, sample_rate, num_channels)
 
-    # We use `handle_sigint=False` because `uvicorn` is controlling keyboard
-    # interruptions. We use `force_gc=True` to force garbage collection after
-    # the runner finishes running a task which could be useful for long running
-    # applications with multiple clients connecting.
     runner = PipelineRunner(handle_sigint=False, force_gc=True)
 
     await runner.run(task)
